@@ -1,13 +1,14 @@
 package it.jaschke.alexandria;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,9 +23,10 @@ import it.jaschke.alexandria.data.AlexandriaContract;
 
 public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
+    public static final String BOOK_LIST_DIRTY = "BookListDirty";
     private BookListAdapter bookListAdapter;
     private ListView bookList;
-    private int position = ListView.INVALID_POSITION;
+    private int mPosition = ListView.INVALID_POSITION;
     private EditText searchText;
 
     private final int LOADER_ID = 10;
@@ -48,7 +50,6 @@ public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbac
                 null  // sort order
         );
 
-
         bookListAdapter = new BookListAdapter(getActivity(), cursor, 0);
         View rootView = inflater.inflate(R.layout.fragment_list_of_books, container, false);
         searchText = (EditText) rootView.findViewById(R.id.searchText);
@@ -68,9 +69,11 @@ public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbac
 
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                // bug fix, update mPosition
+                mPosition = position;
                 Cursor cursor = bookListAdapter.getCursor();
                 if (cursor != null && cursor.moveToPosition(position)) {
-                    ((Callback)getActivity())
+                    ((Callback) getActivity())
                             .onItemSelected(cursor.getString(cursor.getColumnIndex(AlexandriaContract.BookEntry._ID)));
                 }
             }
@@ -113,9 +116,10 @@ public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbac
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        resetDirtyFlag();
         bookListAdapter.swapCursor(data);
-        if (position != ListView.INVALID_POSITION) {
-            bookList.smoothScrollToPosition(position);
+        if (mPosition != ListView.INVALID_POSITION) {
+            bookList.smoothScrollToPosition(mPosition);
         }
     }
 
@@ -128,5 +132,24 @@ public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbac
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         activity.setTitle(R.string.books);
+    }
+    private void resetDirtyFlag() {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        sharedPref.edit().putBoolean(BOOK_LIST_DIRTY, false).apply();
+
+    }
+    private void processDirtyFlag() {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        Boolean dirty_flag = sharedPref.getBoolean(BOOK_LIST_DIRTY, false);
+        if ( dirty_flag) {
+            // trigger notification
+            restartLoader();
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        processDirtyFlag();
     }
 }

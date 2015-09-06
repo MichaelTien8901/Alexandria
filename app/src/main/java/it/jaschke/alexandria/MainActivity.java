@@ -14,7 +14,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 import it.jaschke.alexandria.api.Callback;
@@ -27,6 +26,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
      */
     private NavigationDrawerFragment navigationDrawerFragment;
 
+
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
@@ -36,6 +36,8 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 
     public static final String MESSAGE_EVENT = "MESSAGE_EVENT";
     public static final String MESSAGE_KEY = "MESSAGE_EXTRA";
+    private String mEAN;
+    public boolean mTwoPane;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,10 +81,16 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
                 break;
 
         }
+        /** bug fixed
+               /* pop back stack if called with the book details
+                */
+        if (!isTablet() && fragmentManager.getBackStackEntryCount() > 0)
+           fragmentManager.popBackStackImmediate();
 
         fragmentManager.beginTransaction()
                 .replace(R.id.container, nextFragment)
-                .addToBackStack((String) title)
+                        // don't add back stack because no back button
+                // .addToBackStack((String) title)
                 .commit();
     }
 
@@ -134,21 +142,34 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 
     @Override
     public void onItemSelected(String ean) {
-        Bundle args = new Bundle();
-        args.putString(BookDetail.EAN_KEY, ean);
+        if ( !isTablet()) {
+            // use activity for phone
+            Intent detail_intent = new Intent(this, BookDetailActivity.class);
+            // putExtra a parcel movie object
+            detail_intent.putExtra(Intent.EXTRA_TEXT, ean);
+            startActivity(detail_intent);
+        } else {
+            mEAN = ean;
+            Bundle args = new Bundle();
+            args.putString(BookDetail.EAN_KEY, ean);
+            BookDetail fragment = new BookDetail();
+            fragment.setArguments(args);
 
-        BookDetail fragment = new BookDetail();
-        fragment.setArguments(args);
-
-        int id = R.id.container;
-        if(findViewById(R.id.right_container) != null){
-            id = R.id.right_container;
+            int id = R.id.container;
+            if (findViewById(R.id.right_container) != null) {
+                args.putBoolean(BookDetail.BACK_KEY, false);
+                id = R.id.right_container;
+                getSupportFragmentManager().beginTransaction()
+                        .replace(id, fragment)
+                        .commit();
+            } else {
+                args.putBoolean(BookDetail.BACK_KEY, true);
+                getSupportFragmentManager().beginTransaction()
+                        .replace(id, fragment)
+                        .addToBackStack("Book Detail")
+                        .commit();
+            }
         }
-        getSupportFragmentManager().beginTransaction()
-                .replace(id, fragment)
-                .addToBackStack("Book Detail")
-                .commit();
-
     }
 
     private class MessageReciever extends BroadcastReceiver {
@@ -159,17 +180,17 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
             }
         }
     }
-
+    /*
     public void goBack(View view){
         getSupportFragmentManager().popBackStack();
     }
-
+    */
     private boolean isTablet() {
         return (getApplicationContext().getResources().getConfiguration().screenLayout
                 & Configuration.SCREENLAYOUT_SIZE_MASK)
                 >= Configuration.SCREENLAYOUT_SIZE_LARGE;
     }
-
+/*
     @Override
     public void onBackPressed() {
         if(getSupportFragmentManager().getBackStackEntryCount()<2){
@@ -177,6 +198,6 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
         }
         super.onBackPressed();
     }
-
+*/
 
 }
