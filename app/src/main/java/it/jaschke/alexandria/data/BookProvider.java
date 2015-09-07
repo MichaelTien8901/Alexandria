@@ -8,7 +8,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
-import android.util.Log;
 
 /**
  * Created by saj on 24/12/14.
@@ -41,7 +40,6 @@ final static String LOG_TAG = BookProvider.class.getSimpleName();
                 " LEFT OUTER JOIN " +  AlexandriaContract.CategoryEntry.TABLE_NAME + " USING (" +AlexandriaContract.BookEntry._ID + ")");
     }
 
-
     private static UriMatcher buildUriMatcher() {
 
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -57,7 +55,6 @@ final static String LOG_TAG = BookProvider.class.getSimpleName();
 
         matcher.addURI(authority, AlexandriaContract.PATH_FULLBOOK +"/#", BOOK_FULLDETAIL);
         matcher.addURI(authority, AlexandriaContract.PATH_FULLBOOK, BOOK_FULL);
-
         return matcher;
     }
 
@@ -65,7 +62,6 @@ final static String LOG_TAG = BookProvider.class.getSimpleName();
     public boolean onCreate() {
         dbHelper = new DbHelper(getContext());
         return true;
-
     }
 
     @Override
@@ -173,10 +169,7 @@ final static String LOG_TAG = BookProvider.class.getSimpleName();
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
-        Log.d(LOG_TAG, "query URI = "+uri.toString());
-
         retCursor.setNotificationUri(getContext().getContentResolver(), uri);
-
         return retCursor;
     }
 
@@ -273,11 +266,7 @@ final static String LOG_TAG = BookProvider.class.getSimpleName();
         }
         // Because a null deletes all rows
         if (selection == null || rowsDeleted != 0) {
-                    getContext().getContentResolver().notifyChange(uri, null);
-            // add to fix bug not notified
-            getContext().getContentResolver().notifyChange(AlexandriaContract.BookEntry.CONTENT_URI, null);
-            Log.d(LOG_TAG, "delete URI = "+uri.toString());
-
+            getContext().getContentResolver().notifyChange(uri, null);
         }
         return rowsDeleted;
     }
@@ -306,8 +295,6 @@ final static String LOG_TAG = BookProvider.class.getSimpleName();
         }
         if (rowsUpdated != 0) {
             getContext().getContentResolver().notifyChange(uri, null);
-            Log.d(LOG_TAG, "update URI = " + uri.toString());
-
         }
         return rowsUpdated;
     }
