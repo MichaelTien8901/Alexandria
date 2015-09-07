@@ -21,9 +21,10 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
 import it.jaschke.alexandria.data.AlexandriaContract;
 import it.jaschke.alexandria.services.BookService;
-import it.jaschke.alexandria.services.DownloadImage;
 
 
 public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -203,7 +204,11 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         }
         String imgUrl = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.IMAGE_URL));
         if(Patterns.WEB_URL.matcher(imgUrl).matches()){
-            new DownloadImage((ImageView) rootView.findViewById(R.id.bookCover)).execute(imgUrl);
+            //new DownloadImage((ImageView) rootView.findViewById(R.id.bookCover)).execute(imgUrl);
+            Picasso.with(getActivity())
+                    .load(imgUrl)
+                    .placeholder(R.drawable.ic_launcher)
+                    .into((ImageView) rootView.findViewById(R.id.bookCover));
             rootView.findViewById(R.id.bookCover).setVisibility(View.VISIBLE);
         }
 
