@@ -195,7 +195,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
 
         String authors = data.getString(data.getColumnIndex(AlexandriaContract.AuthorEntry.AUTHOR));
         // check before use it
-        if ( authors != null || authors != "" ) {
+        if ( authors != null && authors.length() != 0 ) {
             String[] authorsArr = authors.split(",");
             ((TextView) rootView.findViewById(R.id.authors)).setLines(authorsArr.length);
             ((TextView) rootView.findViewById(R.id.authors)).setText(authors.replace(",","\n"));
@@ -208,8 +208,11 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
             Picasso.with(getActivity())
                     .load(imgUrl)
                     .placeholder(R.drawable.ic_launcher)
+                    .error(R.drawable.ic_launcher)
                     .into((ImageView) rootView.findViewById(R.id.bookCover));
             rootView.findViewById(R.id.bookCover).setVisibility(View.VISIBLE);
+        } else {
+            ((ImageView) rootView.findViewById(R.id.fullBookCover)).setImageResource(R.drawable.ic_launcher);
         }
 
         String categories = data.getString(data.getColumnIndex(AlexandriaContract.CategoryEntry.CATEGORY));

@@ -19,7 +19,7 @@ import it.jaschke.alexandria.data.AlexandriaContract;
  * Created by saj on 11/01/15.
  */
 public class BookListAdapter extends CursorAdapter {
-
+   final static String LOG_TAG = BookListAdapter.class.getSimpleName();
 
     public static class ViewHolder {
         public final ImageView bookCover;
@@ -39,15 +39,19 @@ public class BookListAdapter extends CursorAdapter {
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         String imgUrl = cursor.getString(cursor.getColumnIndex(AlexandriaContract.BookEntry.IMAGE_URL));
 //        new DownloadImage(viewHolder.bookCover).execute(imgUrl);
-        Picasso.with(context)
-                .load(imgUrl)
-                .placeholder(R.drawable.ic_launcher)
-                .into(viewHolder.bookCover);
+        if ( imgUrl != null && imgUrl.length() != 0) {
+            Picasso.with(context)
+                    .load(imgUrl)
+                    .placeholder(R.drawable.ic_launcher)
+                    .error(R.drawable.ic_launcher)
+                    .into(viewHolder.bookCover);
+        } else {
+            viewHolder.bookCover.setImageResource(R.drawable.ic_launcher);
+        }
         String bookTitle = cursor.getString(cursor.getColumnIndex(AlexandriaContract.BookEntry.TITLE));
         viewHolder.bookTitle.setText(bookTitle);
 

@@ -150,8 +150,11 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
             Picasso.with(getActivity())
                     .load(imgUrl)
                     .placeholder(R.drawable.ic_launcher)
+                    .error(R.drawable.ic_launcher)
                     .into((ImageView) rootView.findViewById(R.id.fullBookCover));
             rootView.findViewById(R.id.fullBookCover).setVisibility(View.VISIBLE);
+        } else {
+            ((ImageView) rootView.findViewById(R.id.fullBookCover)).setImageResource(R.drawable.ic_launcher);
         }
 
         String categories = data.getString(data.getColumnIndex(AlexandriaContract.CategoryEntry.CATEGORY));
@@ -160,7 +163,6 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
         if (rootView.findViewById(R.id.right_container) != null) {
             rootView.findViewById(R.id.backButton).setVisibility(View.INVISIBLE);
         }
-
     }
 
     private void setupShareProvider() {
