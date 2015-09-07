@@ -2,7 +2,6 @@ package it.jaschke.alexandria;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -18,7 +17,6 @@ import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -41,7 +39,6 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     private static final String SCAN_CONTENTS = "scanContents";
     private String mScanFormat = "Format:";
     private String mScanContents = "Contents:";
-    private boolean OnCreateViewFlag=false;
 
     public AddBook(){
     }
@@ -153,8 +150,6 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
                 ean.setText("");
             }
         });
-
-        hideKeyboard();
         return rootView;
     }
 
@@ -238,13 +233,5 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         activity.setTitle(R.string.scan);
-    }
-    private void hideKeyboard() {
-        // Check if no view has focus:
-        View view = getActivity().getCurrentFocus();
-        if (view != null) {
-            InputMethodManager inputManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-            inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-        }
     }
 }

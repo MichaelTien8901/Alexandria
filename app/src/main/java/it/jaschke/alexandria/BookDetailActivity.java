@@ -13,6 +13,10 @@ public class BookDetailActivity extends ActionBarActivity implements BookDetail.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if ( getResources().getBoolean(R.bool.has_two_panes)) {
+            finish();
+            return;
+        }
         setContentView(R.layout.activity_book_detail);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         if (savedInstanceState == null) {

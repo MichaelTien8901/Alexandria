@@ -58,6 +58,10 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
         setHasOptionsMenu(true);
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
 
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -180,7 +184,8 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
     public void onAttach(Activity context) {
         super.onAttach(context);
         if (!(context instanceof Callbacks)) {
-            throw new IllegalStateException("Activity must implement fragment's callbacks.");
+            //throw new IllegalStateException("Activity must implement fragment's callbacks.");
+            return; // no back press
         }
         mCallbacks = (Callbacks) context;
     }

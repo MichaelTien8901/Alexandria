@@ -14,7 +14,7 @@ import android.util.Log;
  * Created by saj on 24/12/14.
  */
 public class BookProvider extends ContentProvider {
-
+final static String LOG_TAG = BookProvider.class.getSimpleName();
     private static final int BOOK_ID = 100;
     private static final int BOOK = 101;
 
@@ -173,6 +173,7 @@ public class BookProvider extends ContentProvider {
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
+        Log.d(LOG_TAG, "query URI = "+uri.toString());
 
         retCursor.setNotificationUri(getContext().getContentResolver(), uri);
 
@@ -272,7 +273,11 @@ public class BookProvider extends ContentProvider {
         }
         // Because a null deletes all rows
         if (selection == null || rowsDeleted != 0) {
-            getContext().getContentResolver().notifyChange(uri, null);
+                    getContext().getContentResolver().notifyChange(uri, null);
+            // add to fix bug not notified
+            getContext().getContentResolver().notifyChange(AlexandriaContract.BookEntry.CONTENT_URI, null);
+            Log.d(LOG_TAG, "delete URI = "+uri.toString());
+
         }
         return rowsDeleted;
     }
@@ -301,6 +306,8 @@ public class BookProvider extends ContentProvider {
         }
         if (rowsUpdated != 0) {
             getContext().getContentResolver().notifyChange(uri, null);
+            Log.d(LOG_TAG, "update URI = " + uri.toString());
+
         }
         return rowsUpdated;
     }

@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -12,18 +11,22 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import it.jaschke.alexandria.api.Callback;
+import it.jaschke.alexandria.api.MenuItemSelectedCallback;
 
 
-public class MainActivity extends ActionBarActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks, Callback {
-
+public class MainActivity extends ActionBarActivity
+        implements NavigationDrawerFragment.NavigationDrawerCallbacks, MenuItemSelectedCallback,
+        BookDetail.Callbacks {
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
+    private final String LOG_TAG = AddBook.class.getSimpleName();
+
     private NavigationDrawerFragment navigationDrawerFragment;
 
 
@@ -42,13 +45,16 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.main_layout);
+        mTwoPane = getResources().getBoolean(R.bool.has_two_panes);
+/*
         IS_TABLET = isTablet();
         if(IS_TABLET){
             setContentView(R.layout.activity_main_tablet);
         }else {
             setContentView(R.layout.activity_main);
         }
-
+*/
         messageReciever = new MessageReciever();
         IntentFilter filter = new IntentFilter(MESSAGE_EVENT);
         LocalBroadcastManager.getInstance(this).registerReceiver(messageReciever,filter);
@@ -84,8 +90,8 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
         /** bug fixed
                /* pop back stack if called with the book details
                 */
-        if (!isTablet() && fragmentManager.getBackStackEntryCount() > 0)
-           fragmentManager.popBackStackImmediate();
+//        if (!mTwoPane && fragmentManager.getBackStackEntryCount() > 0)
+//           fragmentManager.popBackStackImmediate();
 
         fragmentManager.beginTransaction()
                 .replace(R.id.container, nextFragment)
@@ -142,10 +148,15 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 
     @Override
     public void onItemSelected(String ean) {
-        if ( !isTablet()) {
-            // use activity for phone
+        if ( !mTwoPane) {
+            // if right fragment exist, need to remove it
+            FragmentManager fm = getSupportFragmentManager();
+            Fragment fragment = fm.findFragmentById(R.id.right_container);
+            if (fragment != null ) {
+                fm.beginTransaction().remove(fragment).commit();
+            }
+            // use activity for one pane
             Intent detail_intent = new Intent(this, BookDetailActivity.class);
-            // putExtra a parcel movie object
             detail_intent.putExtra(Intent.EXTRA_TEXT, ean);
             startActivity(detail_intent);
         } else {
@@ -155,19 +166,13 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
             BookDetail fragment = new BookDetail();
             fragment.setArguments(args);
 
-            int id = R.id.container;
             if (findViewById(R.id.right_container) != null) {
                 args.putBoolean(BookDetail.BACK_KEY, false);
-                id = R.id.right_container;
                 getSupportFragmentManager().beginTransaction()
-                        .replace(id, fragment)
+                        .replace(R.id.right_container, fragment)
                         .commit();
             } else {
-                args.putBoolean(BookDetail.BACK_KEY, true);
-                getSupportFragmentManager().beginTransaction()
-                        .replace(id, fragment)
-                        .addToBackStack("Book Detail")
-                        .commit();
+                Log.d(LOG_TAG, "right_container not found");
             }
         }
     }
@@ -185,19 +190,22 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
         getSupportFragmentManager().popBackStack();
     }
     */
+    /*
     private boolean isTablet() {
         return (getApplicationContext().getResources().getConfiguration().screenLayout
                 & Configuration.SCREENLAYOUT_SIZE_MASK)
                 >= Configuration.SCREENLAYOUT_SIZE_LARGE;
     }
-/*
-    @Override
-    public void onBackPressed() {
-        if(getSupportFragmentManager().getBackStackEntryCount()<2){
-            finish();
-        }
-        super.onBackPressed();
-    }
-*/
+    */
 
+    @Override
+    public void OnBackPressed() { // from Book Detail
+        FragmentManager fm = getSupportFragmentManager();
+        Fragment fragment = fm.findFragmentById(R.id.right_container);
+        if (fragment != null ) {
+            // need to close it
+            fm.beginTransaction().remove(fragment).commit();
+        }
+        //super.onBackPressed();
+    }
 }

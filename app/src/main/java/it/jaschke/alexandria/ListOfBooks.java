@@ -17,7 +17,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 import it.jaschke.alexandria.api.BookListAdapter;
-import it.jaschke.alexandria.api.Callback;
+import it.jaschke.alexandria.api.MenuItemSelectedCallback;
 import it.jaschke.alexandria.data.AlexandriaContract;
 
 
@@ -41,16 +41,17 @@ public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbac
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-        Cursor cursor = getActivity().getContentResolver().query(
+/* not supposed to do it in UI thread
+/*        Cursor cursor = getActivity().getContentResolver().query(
                 AlexandriaContract.BookEntry.CONTENT_URI,
                 null, // leaving "columns" null just returns all the columns.
                 null, // cols for "where" clause
                 null, // values for "where" clause
                 null  // sort order
         );
-
         bookListAdapter = new BookListAdapter(getActivity(), cursor, 0);
+*/
+        bookListAdapter = new BookListAdapter(getActivity(), null, 0);
         View rootView = inflater.inflate(R.layout.fragment_list_of_books, container, false);
         searchText = (EditText) rootView.findViewById(R.id.searchText);
         rootView.findViewById(R.id.searchButton).setOnClickListener(
@@ -73,12 +74,12 @@ public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbac
                 mPosition = position;
                 Cursor cursor = bookListAdapter.getCursor();
                 if (cursor != null && cursor.moveToPosition(position)) {
-                    ((Callback) getActivity())
+                    ((MenuItemSelectedCallback) getActivity())
                             .onItemSelected(cursor.getString(cursor.getColumnIndex(AlexandriaContract.BookEntry._ID)));
                 }
             }
         });
-
+        restartLoader();
         return rootView;
     }
 
@@ -90,7 +91,8 @@ public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbac
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
         final String selection = AlexandriaContract.BookEntry.TITLE +" LIKE ? OR " + AlexandriaContract.BookEntry.SUBTITLE + " LIKE ? ";
-        String searchString =searchText.getText().toString();
+        String searchString =searchText.getText().toString()
+                .trim(); // get rid of extra space bug
 
         if(searchString.length()>0){
             searchString = "%"+searchString+"%";
