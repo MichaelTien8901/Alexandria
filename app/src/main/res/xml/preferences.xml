@@ -13,4 +13,11 @@
         android:entryValues="@array/pref_start_values"
         />
 
+    <ListPreference
+        android:key="@string/pref_camera_key"
+        android:title="@string/pref_camera_title"
+        android:entries="@array/pref_camera_options"
+        android:entryValues="@array/pref_camera_values"
+        />
+
 </PreferenceScreen>

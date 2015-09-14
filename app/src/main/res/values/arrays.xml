@@ -9,4 +9,15 @@
         <item>0</item>
         <item>1</item>
     </string-array>
+    <string-array name="pref_camera_options">
+        <item>@string/zxing_external_option</item>
+        <item>@string/zxing_internal_option</item>
+        <item>@string/zbar_option</item>
+    </string-array>
+
+    <string-array name="pref_camera_values">
+        <item>@string/zxing_external_value</item>
+        <item>@string/zxing_internal_value</item>
+        <item>@string/zbar_value</item>
+    </string-array>
 </resources>

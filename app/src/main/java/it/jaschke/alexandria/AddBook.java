@@ -4,9 +4,11 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -23,9 +25,12 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import net.sourceforge.zbar.Symbol;
+
+import it.jaschke.alexandria.camera.ZBarConstants;
+import it.jaschke.alexandria.camera.ZBarScannerActivity;
 import it.jaschke.alexandria.data.AlexandriaContract;
 import it.jaschke.alexandria.services.BookService;
-
 
 public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private final String LOG_TAG = AddBook.class.getSimpleName();
@@ -40,6 +45,10 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     private static final String SCAN_CONTENTS = "scanContents";
     private String mScanFormat = "Format:";
     private String mScanContents = "Contents:";
+    static final int ZXING_INTERNAL_REQUEST_CODE = 100;
+    static final int ZBAR_SCANNER_REQUEST = 101;
+    static final int ZXING_EXTERNAL_REQUEST_CODE = 102;
+
 
     public AddBook(){
     }
@@ -48,17 +57,26 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
     }
-    static final int REQUEST_CODE = 100;
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if ( requestCode == REQUEST_CODE) {
+        switch (requestCode) {
+            case ZXING_EXTERNAL_REQUEST_CODE:
             if (resultCode == Activity.RESULT_OK) {
-                  ean.setText( data.getStringExtra("SCAN_RESULT"));
-            } else if (resultCode == Activity.RESULT_CANCELED) {
+                ean.setText(data.getStringExtra("SCAN_RESULT"));
             }
+            break;
+            case ZXING_INTERNAL_REQUEST_CODE:
+                if (resultCode == Activity.RESULT_OK) {
+                    ean.setText(data.getStringExtra(ZxingScannerActivity.SCAN_RESULT));
+                }
+                break;
+            case ZBAR_SCANNER_REQUEST:
+            if (resultCode == Activity.RESULT_OK) {
+                ean.setText(data.getStringExtra("SCAN_RESULT"));
+            }
+            break;
         }
-
     }
 
     @Override
@@ -106,30 +124,46 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         rootView.findViewById(R.id.scan_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent("com.google.zxing.client.android.SCAN");
-                intent.putExtra("SCAN_MODE", "PRODUCT_MODE");
-                intent.putExtra("SCAN_FORMATS", "EAN13,EAN8");
-                try {
-                    startActivityForResult(intent, REQUEST_CODE);    //Barcode Scanner to scan for us
-                } catch (Exception e) {
-                    // dialog to ask installation
-                    AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
-                    alertDialog.setTitle("");
-                    alertDialog.setMessage("Barcode Scanner not found.  Do you want to install it?");
+                // get preference to find out which scanner to use
+                SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                String scanner = sharedPref.getString(getString(R.string.pref_camera_key), getString(R.string.pref_camera_default));
+                if ( scanner.equals(getString(R.string.zbar_value))) {
+                    // use internal ZBar scanner
+                    Intent intent = new Intent(getActivity(), ZBarScannerActivity.class);
+                    intent.putExtra(ZBarConstants.SCAN_MODES, new int[]{Symbol.EAN13});
+                    startActivityForResult(intent, ZBAR_SCANNER_REQUEST);
+                } else if ( scanner.equals(getString(R.string.zxing_internal_value))) {
+                    Intent intent = new Intent(getActivity(), ZxingScannerActivity.class);
+//                    intent.putExtra(ZxingScannerActivity.FLASH_STATE, false);
+//                    intent.putExtra(ZxingScannerActivity.SELECTED_FORMATS, new String[] {"EAN13"});
+                    startActivityForResult(intent, ZXING_INTERNAL_REQUEST_CODE);    //Barcode Scanner to scan for us
+                } else {
+                    // use external ZXing scanner
+                    Intent intent = new Intent("com.google.zxing.client.android.SCAN");
+                    intent.putExtra("SCAN_MODE", "PRODUCT_MODE");
+                    intent.putExtra("SCAN_FORMATS", "EAN13,EAN8");
+                    try {
+                        startActivityForResult(intent, ZXING_EXTERNAL_REQUEST_CODE);    //Barcode Scanner to scan for us
+                    } catch (Exception e) {
+                        // dialog to ask installation
+                        AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
+                        alertDialog.setTitle("");
+                        alertDialog.setMessage("Barcode Scanner not found.  Do you want to install it?");
 
-                    alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.google.zxing.client.android")));
-                        }
-                    });
-                    alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "CANCEL", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            // do nothing
-                        }
-                    });
-                    alertDialog.show();
+                        alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.google.zxing.client.android")));
+                            }
+                        });
+                        alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "CANCEL", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                // do nothing
+                            }
+                        });
+                        alertDialog.show();
+                    }
                 }
             }
         });

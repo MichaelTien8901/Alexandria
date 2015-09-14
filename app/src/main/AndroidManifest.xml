@@ -53,6 +53,20 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="it.jaschke.alexandria.MainActivity" />
         </activity>
+        <activity android:name=".camera.ZBarScannerActivity"
+            android:screenOrientation="landscape"
+            android:label="@string/app_name"
+            android:parentActivityName=".MainActivity"
+            />
+        <activity android:name=".ZxingScannerActivity"
+            android:theme="@style/AppOverlayTheme"
+            android:uiOptions="splitActionBarWhenNarrow"
+            android:label="@string/scanner_activity"
+            android:parentActivityName=".MainActivity"
+            >
+            <meta-data android:name="android.support.UI_OPTIONS"
+                android:value="splitActionBarWhenNarrow" />
+        </activity>
     </application>
 
 </manifest>
