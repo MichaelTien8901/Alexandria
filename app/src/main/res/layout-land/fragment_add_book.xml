@@ -36,7 +36,7 @@
             android:layout_alignBottom="@+id/ean"
             android:layout_toRightOf="@+id/ean"
             android:layout_toEndOf="@+id/ean"
-            android:focusableInTouchMode="true"
+            android:focusableInTouchMode="false"
             android:minHeight="64dp"
             android:minWidth="120dp" />
 

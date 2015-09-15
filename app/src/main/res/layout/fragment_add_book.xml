@@ -34,7 +34,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/scan_button"
                 android:id="@+id/scan_button"
-                android:focusableInTouchMode="true"
+                android:focusableInTouchMode="false"
                 android:minHeight="64dp"
                 android:minWidth="120dp" />
 
