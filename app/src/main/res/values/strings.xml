@@ -28,18 +28,18 @@
     <string name="about_text">This application gets book information from a Google API. All titles, cover images, and author information come from there.
     The original version of this app was built by Sascha Jaschke, and a modified version is given to students in the Udacity Android Nanodegree program. </string>
     <string name="title_activity_book_detail">Book Details</string>
-    <string name="pref_start_fragment_key">pref_startFragmen</string>
-    <string name="pref_camera_key">PREF_CAMERA_KEY</string>
+    <string name="pref_start_fragment_key" translatable="false">pref_startFragmen</string>
+    <string name="pref_camera_key" translatable="false">PREF_CAMERA_KEY</string>
     <string name="pref_camera_title">Barcode Scanner</string>
 
     <string name="zxing_external_option">External ZXing Barcode Scanner</string>
     <string name="zxing_internal_option">Internal ZXing Barcode Scanner</string>
     <string name="zbar_option">Internal ZBar Scanner</string>
 
-    <string name="zxing_internal_value">zxing_embedded</string>
-    <string name="zxing_external_value">zxing_external</string>
-    <string name="zbar_value">zbar</string>
-    <string name="pref_camera_default">zxing_external</string>
+    <string name="zxing_internal_value" translatable="false" >zxing_embedded</string>
+    <string name="zxing_external_value" translatable="false">zxing_external</string>
+    <string name="zbar_value" translatable="false">zbar</string>
+    <string name="pref_camera_default" translatable="false">zxing_external</string>
 
     <string name="empty_book_no_network">No book information available. The network is not available to fetch book data.</string>
     <string name="empty_book_server_down">No book information available. The server is not returning data.</string>
