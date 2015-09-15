@@ -2,11 +2,9 @@ package it.jaschke.alexandria;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
@@ -17,7 +15,6 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
-import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -57,33 +54,13 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     public static final String BROADCAST_ACTION =
             "com.example.alexandria.BROADCAST";
 
-    private class MyResponseReceiver extends BroadcastReceiver {
-        // Called when the BroadcastReceiver gets an Intent it's registered to receive
-        public void onReceive(Context context, Intent intent) {
-//            updateEmptyView();
-//            restartLoader();
-//            AddBook.this.restartLoader();
-            Activity activity = getActivity();
-            if ( activity != null) {
-                activity.runOnUiThread(new Runnable() {
-                    public void run() {
-                        restartLoader();
-                    }
-                });
-            }
-        }
-    }
+
     public AddBook(){}
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        getLoaderManager().initLoader(LOADER_ID, null, this);
+//        getLoaderManager().initLoader(LOADER_ID, null, this);
         super.onActivityCreated(savedInstanceState);
-        IntentFilter statusIntentFilter = new IntentFilter(BROADCAST_ACTION);
-        MyResponseReceiver responseReceiver =
-                new MyResponseReceiver();
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(
-                responseReceiver, statusIntentFilter);
     }
 
     @Override
@@ -150,7 +127,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
                 bookIntent.putExtra(BookService.EAN, ean);
                 bookIntent.setAction(BookService.FETCH_BOOK);
                 getActivity().startService(bookIntent);
-//                AddBook.this.restartLoader();
+                AddBook.this.restartLoader();
             }
         });
 
@@ -226,13 +203,8 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
 
     @Override
     public android.support.v4.content.Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        if(ean.getText().length()==0){
-            return null;
-        }
         String eanStr= ean.getText().toString();
-        if(eanStr.length()==10 && !eanStr.startsWith("978")){
-            eanStr="978"+eanStr;
-        }
+
         return new CursorLoader(
                 getActivity(),
                 AlexandriaContract.BookEntry.buildFullBookUri(Long.parseLong(eanStr)),

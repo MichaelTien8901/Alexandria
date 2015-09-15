@@ -25,7 +25,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import it.jaschke.alexandria.AddBook;
 import it.jaschke.alexandria.MainActivity;
 import it.jaschke.alexandria.R;
 import it.jaschke.alexandria.data.AlexandriaContract;
@@ -270,21 +269,16 @@ public class BookService extends IntentService {
     }
     private void sendMessage(String msg) {
         Intent messageIntent = new Intent(MainActivity.MESSAGE_EVENT);
-        messageIntent.putExtra(MainActivity.MESSAGE_KEY,msg);
+        messageIntent.putExtra(MainActivity.MESSAGE_KEY, msg);
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(messageIntent);
 
     }
     static private void setBookStatus(Context c, @GoogleBookStatus int bookStatus){
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(c);
         SharedPreferences.Editor spe = sp.edit();
-        spe.putInt(c.getString(R.string.pref_book_status_key), bookStatus );
+        spe.putInt(c.getString(R.string.pref_book_status_key), bookStatus);
         spe.commit();
-        notifyBookStatus(c);
-    }
-    static private void notifyBookStatus(Context c) {
-        Intent localIntent =
-                new Intent(AddBook.BROADCAST_ACTION);
-        // Broadcasts the Intent to receivers in this app.
-        LocalBroadcastManager.getInstance(c).sendBroadcast(localIntent);
+        // notify changes for add book
+        c.getContentResolver().notifyChange( AlexandriaContract.BookEntry.FULL_CONTENT_URI, null );
     }
 }
