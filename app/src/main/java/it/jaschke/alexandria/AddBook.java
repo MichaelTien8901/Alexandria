@@ -2,16 +2,22 @@ package it.jaschke.alexandria;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -48,9 +54,36 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     static final int ZXING_INTERNAL_REQUEST_CODE = 100;
     static final int ZBAR_SCANNER_REQUEST = 101;
     static final int ZXING_EXTERNAL_REQUEST_CODE = 102;
+    public static final String BROADCAST_ACTION =
+            "com.example.alexandria.BROADCAST";
 
+    private class MyResponseReceiver extends BroadcastReceiver {
+        // Called when the BroadcastReceiver gets an Intent it's registered to receive
+        public void onReceive(Context context, Intent intent) {
+//            updateEmptyView();
+//            restartLoader();
+//            AddBook.this.restartLoader();
+            Activity activity = getActivity();
+            if ( activity != null) {
+                activity.runOnUiThread(new Runnable() {
+                    public void run() {
+                        restartLoader();
+                    }
+                });
+            }
+        }
+    }
+    public AddBook(){}
 
-    public AddBook(){
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        getLoaderManager().initLoader(LOADER_ID, null, this);
+        super.onActivityCreated(savedInstanceState);
+        IntentFilter statusIntentFilter = new IntentFilter(BROADCAST_ACTION);
+        MyResponseReceiver responseReceiver =
+                new MyResponseReceiver();
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(
+                responseReceiver, statusIntentFilter);
     }
 
     @Override
@@ -117,7 +150,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
                 bookIntent.putExtra(BookService.EAN, ean);
                 bookIntent.setAction(BookService.FETCH_BOOK);
                 getActivity().startService(bookIntent);
-                AddBook.this.restartLoader();
+//                AddBook.this.restartLoader();
             }
         });
 
@@ -187,7 +220,6 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         });
         return rootView;
     }
-
     private void restartLoader(){
         getLoaderManager().restartLoader(LOADER_ID, null, this);
     }
@@ -213,6 +245,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
 
     @Override
     public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, Cursor data) {
+        updateEmptyView();
         if (!data.moveToFirst()) {
             return;
         }
@@ -276,4 +309,60 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         super.onAttach(activity);
         activity.setTitle(R.string.scan);
     }
+    public void updateEmptyView() {
+        @BookService.GoogleBookStatus int status = getGoogleBookStatus(getContext());
+        TextView tv = (TextView) getView().findViewById(R.id.empty_view);
+        View container = getView().findViewById(R.id.add_book_container);
+        if ( null != tv  && null != container) {
+            // if cursor is empty, why? do we have an invalid location
+            int message;
+            switch (status) {
+                case BookService.BOOK_STATUS_NO_NETWORK:
+                    message = R.string.empty_book_no_network;
+                    break;
+                case BookService.BOOK_STATUS_SERVER_DOWN:
+                    message = R.string.empty_book_server_down;
+                    break;
+                case BookService.BOOK_STATUS_SERVER_INVALID:
+                    message = R.string.empty_book_server_error;
+                    break;
+                case BookService.BOOK_STATUS_NO_BOOK_FOUND:
+                    message = R.string.empty_book_no_book;
+                    break;
+                default:
+                    if (!isNetworkAvailable(getContext()) ) {
+                        message = R.string.empty_book_no_network;
+                        break;
+                    } else {
+                        tv.setVisibility(View.INVISIBLE);
+                        container.setVisibility(View.VISIBLE);
+                        return;
+                    }
+            }
+            tv.setText(message);
+            tv.setVisibility(View.VISIBLE);
+            container.setVisibility(View.INVISIBLE);
+        }
+    }
+    @SuppressWarnings("ResourceType")
+    static public @BookService.GoogleBookStatus
+    int getGoogleBookStatus(Context c){
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(c);
+        return sp.getInt(c.getString(R.string.pref_book_status_key), BookService.BOOK_STATUS_UNKNOWN);
+    }
+    /**
+     * Returns true if the network is available or about to become available.
+     *
+     * @param c Context used to get the ConnectivityManager
+     * @return true if the network is available
+     */
+    static public boolean isNetworkAvailable(Context c) {
+        ConnectivityManager cm =
+                (ConnectivityManager)c.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+    }
+
 }

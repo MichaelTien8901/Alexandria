@@ -2,9 +2,13 @@ package it.jaschke.alexandria.services;
 
 import android.app.IntentService;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
+import android.preference.PreferenceManager;
+import android.support.annotation.IntDef;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -16,9 +20,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import it.jaschke.alexandria.AddBook;
 import it.jaschke.alexandria.MainActivity;
 import it.jaschke.alexandria.R;
 import it.jaschke.alexandria.data.AlexandriaContract;
@@ -37,6 +44,22 @@ public class BookService extends IntentService {
     public static final String DELETE_BOOK = "it.jaschke.alexandria.services.action.DELETE_BOOK";
 
     public static final String EAN = "it.jaschke.alexandria.services.extra.EAN";
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({BOOK_STATUS_OK,
+            BOOK_STATUS_NO_NETWORK,
+            BOOK_STATUS_SERVER_DOWN,
+            BOOK_STATUS_SERVER_INVALID,
+            BOOK_STATUS_NO_BOOK_FOUND,
+            BOOK_STATUS_UNKNOWN
+    })
+    public @interface GoogleBookStatus {}
+
+    public static final int BOOK_STATUS_OK = 0;
+    public static final int BOOK_STATUS_SERVER_DOWN = 1;
+    public static final int BOOK_STATUS_SERVER_INVALID = 2;
+    public static final int BOOK_STATUS_NO_NETWORK = 3;
+    public static final int BOOK_STATUS_NO_BOOK_FOUND = 4;
+    public static final int BOOK_STATUS_UNKNOWN = 5;
 
     public BookService() {
         super("Alexandria");
@@ -86,6 +109,7 @@ public class BookService extends IntentService {
 
         if(bookEntry.getCount()>0){
             bookEntry.close();
+            setBookStatus(getBaseContext(), BOOK_STATUS_OK);
             return;
         }
 
@@ -114,6 +138,7 @@ public class BookService extends IntentService {
             InputStream inputStream = urlConnection.getInputStream();
             StringBuffer buffer = new StringBuffer();
             if (inputStream == null) {
+                setBookStatus( getBaseContext(), BOOK_STATUS_NO_NETWORK );
                 return;
             }
 
@@ -125,13 +150,15 @@ public class BookService extends IntentService {
             }
 
             if (buffer.length() == 0) {
+                setBookStatus( getBaseContext(), BOOK_STATUS_SERVER_DOWN );
                 return;
             }
             bookJsonString = buffer.toString();
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error: " + e.toString());
             // send message
-            sendMessage("Network Error!");
+            setBookStatus( getBaseContext(), BOOK_STATUS_NO_NETWORK );
+//            sendMessage("Network Error!");
             return;
         } finally {
             if (urlConnection != null) {
@@ -141,6 +168,7 @@ public class BookService extends IntentService {
                 try {
                     reader.close();
                 } catch (final IOException e) {
+                    setBookStatus( getBaseContext(), BOOK_STATUS_SERVER_DOWN );
                     Log.e(LOG_TAG, "Error closing stream", e);
                 }
             }
@@ -164,13 +192,14 @@ public class BookService extends IntentService {
             JSONArray bookArray;
             if(bookJson.has(ITEMS)){
                 bookArray = bookJson.getJSONArray(ITEMS);
-            }else{
+            } else {
                 /*
                 Intent messageIntent = new Intent(MainActivity.MESSAGE_EVENT);
                 messageIntent.putExtra(MainActivity.MESSAGE_KEY,getResources().getString(R.string.not_found));
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(messageIntent);
                 */
-                sendMessage( getResources().getString(R.string.not_found));
+                setBookStatus(getBaseContext(), BOOK_STATUS_NO_BOOK_FOUND);
+//                sendMessage( getResources().getString(R.string.not_found));
                 return;
             }
 
@@ -204,8 +233,10 @@ public class BookService extends IntentService {
 
         } catch (JSONException e) {
             Log.e(LOG_TAG, "Error ", e);
-            sendMessage("Server error!");
+            setBookStatus(getBaseContext(), BOOK_STATUS_SERVER_INVALID);
+            //sendMessage("Server error!");
         }
+        setBookStatus(getBaseContext(), BOOK_STATUS_OK);
     }
 
     private void writeBackBook(String ean, String title, String subtitle, String desc, String imgUrl) {
@@ -243,4 +274,17 @@ public class BookService extends IntentService {
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(messageIntent);
 
     }
- }
+    static private void setBookStatus(Context c, @GoogleBookStatus int bookStatus){
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(c);
+        SharedPreferences.Editor spe = sp.edit();
+        spe.putInt(c.getString(R.string.pref_book_status_key), bookStatus );
+        spe.commit();
+        notifyBookStatus(c);
+    }
+    static private void notifyBookStatus(Context c) {
+        Intent localIntent =
+                new Intent(AddBook.BROADCAST_ACTION);
+        // Broadcasts the Intent to receivers in this app.
+        LocalBroadcastManager.getInstance(c).sendBroadcast(localIntent);
+    }
+}

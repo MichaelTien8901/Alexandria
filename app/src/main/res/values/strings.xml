@@ -40,4 +40,11 @@
     <string name="zxing_external_value">zxing_external</string>
     <string name="zbar_value">zbar</string>
     <string name="pref_camera_default">zxing_external</string>
+
+    <string name="empty_book_no_network">No book information available. The network is not available to fetch book data.</string>
+    <string name="empty_book_server_down">No book information available. The server is not returning data.</string>
+    <string name="empty_book_server_error">No book information available. The server is not returning valid data.</string>
+    <string name="empty_book_no_book">No book information available.</string>
+    <string name="pref_book_status_key">pref_book_status_key</string>
+
 </resources>
