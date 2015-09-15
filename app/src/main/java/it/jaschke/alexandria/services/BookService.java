@@ -9,7 +9,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.support.annotation.IntDef;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -25,7 +24,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import it.jaschke.alexandria.MainActivity;
 import it.jaschke.alexandria.R;
 import it.jaschke.alexandria.data.AlexandriaContract;
 
@@ -267,12 +265,7 @@ public class BookService extends IntentService {
             values= new ContentValues();
         }
     }
-    private void sendMessage(String msg) {
-        Intent messageIntent = new Intent(MainActivity.MESSAGE_EVENT);
-        messageIntent.putExtra(MainActivity.MESSAGE_KEY, msg);
-        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(messageIntent);
 
-    }
     static private void setBookStatus(Context c, @GoogleBookStatus int bookStatus){
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(c);
         SharedPreferences.Editor spe = sp.edit();
