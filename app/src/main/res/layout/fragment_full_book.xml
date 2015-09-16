@@ -31,7 +31,9 @@
                     android:layout_alignParentTop="true"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentStart="true"
-                    android:layout_margin="10dp"/>
+                    android:layout_margin="10dp"
+                    android:contentDescription="@string/book_title"
+                    />
 
                 <LinearLayout
                     android:layout_width="fill_parent"
@@ -41,6 +43,7 @@
                     android:layout_below="@+id/fullBookTitle"
                     android:layout_alignLeft="@+id/fullBookTitle"
                     android:layout_alignStart="@+id/fullBookTitle"
+
                     >
 
                     <ImageView
@@ -63,7 +66,9 @@
                         android:layout_marginLeft="20dp"
                         android:layout_marginRight="10dp"
                         android:layout_toRightOf="@+id/fullBookCover"
-                        android:layout_toEndOf="@+id/fullBookCover"/>
+                        android:layout_toEndOf="@+id/fullBookCover"
+                        android:contentDescription="@string/book_subtitle"
+                        />
 
                 </LinearLayout>
 
@@ -75,6 +80,7 @@
                     android:layout_marginLeft="10dp"
                     android:layout_below="@+id/SubTitleLayout"
                     android:layout_margin="10dp"
+                    android:contentDescription="@string/book_description"
                     />
 
 
@@ -91,7 +97,9 @@
                         android:layout_height="wrap_content"
                         android:id="@+id/categories"
                         android:layout_weight="1"
-                        android:gravity="left|top"/>
+                        android:gravity="left|top"
+                        android:contentDescription="@string/categories"
+                        />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -99,7 +107,9 @@
                         android:id="@+id/authors"
                         android:layout_weight="1"
                         android:textStyle="bold"
-                        android:gravity="right|top"/>
+                        android:gravity="right|top"
+                        android:contentDescription="@string/authors"
+                        />
                 </LinearLayout>
 
                 <ImageButton
@@ -134,7 +144,9 @@
                 android:id="@+id/delete_button"
                 android:drawableLeft="@drawable/ic_action_discard"
                 android:layout_marginRight="10dp"
-                android:layout_marginBottom="5dp"/>
+                android:layout_marginBottom="5dp"
+                android:contentDescription="@string/delete"
+                />
         </LinearLayout>
 
     </LinearLayout>

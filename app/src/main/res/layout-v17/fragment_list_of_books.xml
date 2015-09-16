@@ -31,8 +31,9 @@
             android:layout_toStartOf="@+id/searchButton"
             android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
-            android:layout_marginBottom="10dp"/>
-
+            android:layout_marginBottom="10dp"
+            android:contentDescription="@string/search_text"
+            />
 
         <ListView android:id="@+id/listOfBooks"
             android:layout_width="match_parent"

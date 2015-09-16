@@ -27,7 +27,9 @@
                 android:maxLength="@integer/ean_size"
                 android:maxLines="1"
                 android:hint="@string/input_hint"
-                android:paddingEnd="20dp"/>
+                android:paddingEnd="20dp"
+                android:contentDescription="@string/input_hint"
+                />
 
             <Button
                 android:layout_width="wrap_content"
@@ -36,7 +38,9 @@
                 android:id="@+id/scan_button"
                 android:focusableInTouchMode="false"
                 android:minHeight="64dp"
-                android:minWidth="120dp" />
+                android:minWidth="120dp"
+                android:contentDescription="@string/scan_button"
+                />
 
         </LinearLayout>
         <RelativeLayout
@@ -57,6 +61,7 @@
                 android:textStyle="bold"
                 android:layout_marginTop="25dp"
                 android:paddingEnd="20dp"
+                android:contentDescription="@string/book_title"
                 />
 
             <TextView
@@ -68,6 +73,7 @@
                 android:maxLines="3"
                 android:ellipsize="end"
                 android:layout_gravity="start"
+                android:contentDescription="@string/book_subtitle"
                 />
 
             <TextView
@@ -80,6 +86,7 @@
                 android:layout_marginStart="25dp"
                 android:layout_below="@+id/bookSubTitle"
                 android:layout_toEndOf="@+id/bookCover"
+                android:contentDescription="@string/authors"
                 />
 
             <ImageView
@@ -99,6 +106,7 @@
                 android:layout_below="@+id/bookCover"
                 android:layout_marginTop="20dp"
                 android:layout_gravity="start"
+                android:contentDescription="@string/categories"
                 />
         </RelativeLayout>
         <TextView
@@ -128,6 +136,7 @@
                 android:id="@+id/delete_button"
                 android:drawableStart="@drawable/ic_action_discard"
                 android:visibility="invisible"
+                android:contentDescription="@string/cancel_button"
                 />
 
             <Button
@@ -140,6 +149,7 @@
                 android:drawableStart="@drawable/ic_action_accept"
                 style="?android:attr/buttonBarButtonStyle"
                 android:layout_gravity="bottom"
+                android:contentDescription="@string/ok_button"
                 />
         </LinearLayout>
     </RelativeLayout>

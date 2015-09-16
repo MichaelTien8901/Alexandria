@@ -13,6 +13,12 @@
     <string name="scan_button">Scan</string>
     <string name="input_hint">Insert ISBN-13. Digits only.</string>
     <string name="book_cover">Bookcover</string>
+    <string name="book_title">Book Title</string>
+    <string name="search_text">Search Book</string>
+    <string name="authors">Authors </string>
+    <string name="categories">Categories</string>
+    <string name="book_description">Book description</string>
+    <string name="book_subtitle">Book subtitle</string>
 
     <string name="ok_button">Next</string>
     <string name="cancel_button">Cancel</string>

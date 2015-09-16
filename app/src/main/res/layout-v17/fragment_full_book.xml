@@ -30,7 +30,9 @@
                     android:paddingEnd="20dp"
                     android:layout_alignParentTop="true"
                     android:layout_alignParentStart="true"
-                    android:layout_margin="10dp"/>
+                    android:layout_margin="10dp"
+                    android:contentDescription="@string/book_title"
+                    />
 
                 <LinearLayout
                     android:layout_width="fill_parent"
@@ -60,7 +62,9 @@
                         android:textSize="18sp"
                         android:layout_marginStart="20dp"
                         android:layout_marginEnd="10dp"
-                        android:layout_toEndOf="@+id/fullBookCover"/>
+                        android:layout_toEndOf="@+id/fullBookCover"
+                        android:contentDescription="@string/book_subtitle"
+                        />
 
                 </LinearLayout>
 
@@ -72,6 +76,7 @@
                     android:layout_marginStart="10dp"
                     android:layout_below="@+id/SubTitleLayout"
                     android:layout_margin="10dp"
+                    android:contentDescription="@string/book_description"
                     />
 
 
@@ -88,7 +93,9 @@
                         android:layout_height="wrap_content"
                         android:id="@+id/categories"
                         android:layout_weight="1"
-                        android:gravity="start|top"/>
+                        android:gravity="start|top"
+                        android:contentDescription="@string/categories"
+                        />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -96,7 +103,9 @@
                         android:id="@+id/authors"
                         android:layout_weight="1"
                         android:textStyle="bold"
-                        android:gravity="end|top"/>
+                        android:gravity="end|top"
+                        android:contentDescription="@string/authors"
+                        />
                 </LinearLayout>
 
                 <ImageButton
@@ -130,7 +139,9 @@
                 android:id="@+id/delete_button"
                 android:drawableStart="@drawable/ic_action_discard"
                 android:layout_marginEnd ="10dp"
-                android:layout_marginBottom="5dp"/>
+                android:layout_marginBottom="5dp"
+                android:contentDescription="@string/delete"
+                />
         </LinearLayout>
     </LinearLayout>
 </FrameLayout>
