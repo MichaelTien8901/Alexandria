@@ -19,12 +19,14 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.util.Patterns;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -117,10 +119,12 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
                 if (ean.length() == 10 && !ean.startsWith("978")) {
                     ean = "978" + ean;
                 }
-                if (ean.length() == 13) {
-                    clearFields();
+                if (ean.length() < 13) {
+                    return;
                 }
+//                clearFields();
                 //Once we have an ISBN, start a book intent
+                clearBookStatus(getActivity());
                 Intent bookIntent = new Intent(getActivity(), BookService.class);
                 bookIntent.putExtra(BookService.EAN, ean);
                 bookIntent.setAction(BookService.FETCH_BOOK);
@@ -180,6 +184,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
             @Override
             public void onClick(View view) {
                 ean.setText("");
+                clearFields();
             }
         });
 
@@ -191,6 +196,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
                 bookIntent.setAction(BookService.DELETE_BOOK);
                 getActivity().startService(bookIntent);
                 ean.setText("");
+                clearFields();
             }
         });
         return rootView;
@@ -224,6 +230,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
             Log.d(LOG_TAG, "OnLoadFinished: rootView not found");
             return;
         }
+        clearFields();
         String bookTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.TITLE));
         ((TextView) rootView.findViewById(R.id.bookTitle)).setText(bookTitle);
 
@@ -299,7 +306,12 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
                     break;
                 case BookService.BOOK_STATUS_NO_BOOK_FOUND:
                     message = R.string.empty_book_no_book;
-                    break;
+                    // use toast
+                    Toast toast = Toast.makeText(getActivity(), message, Toast.LENGTH_LONG);
+                    toast.setGravity(Gravity.CENTER, 0, 0);;
+                    toast.show();;
+                    return;
+//                    break;
                 default:
                     if (!isNetworkAvailable(getContext()) ) {
                         message = R.string.empty_book_no_network;
@@ -320,6 +332,13 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     int getGoogleBookStatus(Context c){
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(c);
         return sp.getInt(c.getString(R.string.pref_book_status_key), BookService.BOOK_STATUS_UNKNOWN);
+    }
+
+    static private void clearBookStatus(Context c) {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(c);
+        SharedPreferences.Editor spe = sp.edit();
+        spe.putInt(c.getString(R.string.pref_book_status_key), BookService.BOOK_STATUS_UNKNOWN);
+        spe.commit();
     }
     /**
      * Returns true if the network is available or about to become available.
