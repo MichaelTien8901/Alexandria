@@ -117,10 +117,8 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
                 if (ean.length() == 10 && !ean.startsWith("978")) {
                     ean = "978" + ean;
                 }
-                clearFields(); // fix UI error, showing previous book if scan no book found
-                if (ean.length() < 13) {
-//                    clearFields();
-                    return;
+                if (ean.length() == 13) {
+                    clearFields();
                 }
                 //Once we have an ISBN, start a book intent
                 Intent bookIntent = new Intent(getActivity(), BookService.class);
