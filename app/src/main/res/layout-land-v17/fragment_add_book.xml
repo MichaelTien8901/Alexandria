@@ -38,16 +38,6 @@
             android:minHeight="64dp"
             android:minWidth="120dp"
             android:contentDescription="@string/scan_button" />
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:id="@+id/empty_view"
-            android:paddingStart="40dp"
-            android:paddingTop="20dp"
-            android:layout_below="@+id/scan_button"
-            android:textSize="@dimen/medium_fontsize"
-            android:visibility="invisible"
-            android:textColor="@android:color/holo_red_dark" />
 
         <RelativeLayout
             android:orientation="horizontal"
@@ -116,6 +106,16 @@
                 android:contentDescription="@string/categories"
                 />
         </RelativeLayout>
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:id="@+id/empty_view"
+            android:paddingStart="40dp"
+            android:paddingTop="20dp"
+            android:layout_below="@+id/scan_button"
+            android:textSize="@dimen/medium_fontsize"
+            android:visibility="invisible"
+            android:textColor="@android:color/holo_red_dark" />
 
         <LinearLayout
             android:orientation="vertical"
