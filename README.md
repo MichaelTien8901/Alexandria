@@ -23,8 +23,6 @@ The implementation Guide can be downloaded [here]
 ## Libraries
 
 * [Picasso](http://square.github.io/picasso/), Image downloading and caching library for Android
-* [ZBar Android SDK](https://github.com/ZBar/ZBar/tree/master/android) ZBar Bar Code library for reading bar
-codes from various sources.
-* [ZXing](https://github.com/zxing/zxing)Multi-format 1D/2D barcode image processing library
-
- 
+* [ZBar Android SDK](https://github.com/ZBar/ZBar/tree/master/android), ZBar Bar Code library for reading bar
+codes from various sources
+* [ZXing](https://github.com/zxing/zxing), Multi-format 1D/2D barcode image processing library
